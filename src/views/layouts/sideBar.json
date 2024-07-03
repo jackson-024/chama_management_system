@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Dashboard",
+    "link": "/",
+    "icon": "bx bxs-dashboard"
+  },
+  {
+    "id": 2,
+    "name": "Users",
+    "link": "users",
+    "icon": "bx bx-group"
+  },
+  {
+    "id": 3,
+    "name": "Chamas",
+    "link": "chamas",
+    "icon": "bx bx-grid"
+  },
+  {
+    "id": 2,
+    "name": "Settings",
+    "link": "settings",
+    "icon": "bx bx-cog"
+  }
+]
