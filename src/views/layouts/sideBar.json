@@ -18,7 +18,13 @@
     "icon": "bx bx-grid"
   },
   {
-    "id": 2,
+    "id": 5,
+    "name": "Join Request",
+    "link": "join-requests",
+    "icon": "bx bx-user-plus"
+  },
+  {
+    "id": 4,
     "name": "Settings",
     "link": "settings",
     "icon": "bx bx-cog"

@@ -121,6 +121,16 @@ window.addEventListener("load", () => {
 //   }
 // });
 
+function approveJoin(data) {
+  const url = `join-chama-approve?id=${data}`;
+  fetch(url);
+}
+
+function rejectJoin(data) {
+  const url = `join-chama-reject?id=${data}`;
+  fetch(url);
+}
+
 function approveChama(data) {
   const url = `chama-approve?id=${data}`;
   fetch(url);

@@ -123,8 +123,8 @@ class ChamaController extends Controller
 
         // update users table to add chama_id and role
         $user = new UserModel();
-        $userId = Application::$app->user->{"id"};
-        $updateUser = $user->updateOne(["id" => $userId], ["role_id" => 2]);
+        $userId = $chama->{"chairperson_id"};
+        $updateUser = $user->updateOne(["id" => $userId], ["role_id" => 2, "chama_id" => $chamaId]);
 
 
         if ($updateChama && $updateUser) {
@@ -140,6 +140,59 @@ class ChamaController extends Controller
     }
 
     public function rejectChama()
+    {
+        $chamaModel = new ChamaModel();
+        $chamaId =  $_GET['id'];
+        $chama = $chamaModel->findOne(["id" => $chamaId]);
+
+        // update the chama to approved or declined
+        $updateChama = $chamaModel->updateOne(["id" => $chamaId], ["status" => "inactive"]);
+
+        if ($updateChama) {
+            Application::$app->session->setFlash("success", "Reject succesfull!");
+            Application::$app->response->redirect("/chama-profile?id=$chamaId");
+            exit;
+        }
+
+        return $this->render("chamaProfile", [
+            "model" => $chamaModel,
+            "chama" => $chama
+        ], "dashboard");
+    }
+
+    // function to display join requests
+    public function joinRequests()
+    {
+        $joinModel = new ChamaModel();
+        // $chamas = $joinModel->findAll();
+        $joinStmt = $joinModel->prepare(
+            '
+            SELECT j.*, c.name as chama_id, u.userName as user_id 
+            FROM join_request j
+            INNER JOIN users u ON j.user_id = u.id
+            INNER JOIN chamas c ON j.chama_id = c.id
+        '
+        );
+        $joinStmt->execute();
+        $requests = $joinStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($requests) > 0) {
+            return $this->render("joinRequests", [
+                "model" => $joinModel,
+                "requests" => $requests
+            ], "dashboard");
+        }
+    }
+
+
+    public function approveChamaJoin()
+    {
+        $joinModel = new JoinModel();
+        $joinId = $_GET["id"];
+        $updateJoin = $joinModel->updateOne(["id" => $joinId], ["join_status" => "active"]);
+    }
+
+    public function rejectChamaJoin()
     {
         $chamaModel = new ChamaModel();
         $chamaId =  $_GET['id'];

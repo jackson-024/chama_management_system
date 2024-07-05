@@ -11,11 +11,6 @@ class SiteController extends Controller
         return $this->render("home", [], "dashboard");
     }
 
-    public function users()
-    {
-        return $this->render("users", [], "dashboard");
-    }
-
     public function settings()
     {
 

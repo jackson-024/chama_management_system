@@ -10,6 +10,7 @@ use app\controllers\ChamaController;
 use app\controllers\Controller;
 use app\controllers\RoleController;
 use app\controllers\SiteController;
+use app\controllers\UserController;
 use app\core\Application;
 use app\models\UserModel;
 
@@ -27,7 +28,7 @@ $app = new Application(dirname(__DIR__), $config);
 $app->router->get('/hello', "hello");
 
 $app->router->get('/', [SiteController::class, 'home']);
-$app->router->get('/users', [SiteController::class, 'users']);
+$app->router->get('/users', [UserController::class, 'users']);
 
 $app->router->get('/login', [AuthController::class, 'handleLogin']);
 $app->router->post('/login', [AuthController::class, 'handleLogin']);
@@ -42,13 +43,17 @@ $app->router->get('/landing', [ChamaController::class, 'landing']);
 
 $app->router->get('/join-chama', [ChamaController::class, 'joinChama']);
 $app->router->post('/join-chama', [ChamaController::class, 'joinChama']);
-$app->router->post('/join-requests', [ChamaController::class, 'joinChama']);
+
+$app->router->get('/join-requests', [ChamaController::class, 'joinRequests']);
 
 $app->router->get('/create-chama', [ChamaController::class, 'createChama']);
 $app->router->post('/create-chama', [ChamaController::class, 'createChama']);
+
 $app->router->get('/chamas', [ChamaController::class, 'showChamas']);
 $app->router->get('/chama-profile', [ChamaController::class, 'chamaProfile']);
 $app->router->get('/chama-approve', [ChamaController::class, 'approveChama']);
 $app->router->get('/chama-reject', [ChamaController::class, 'rejectChama']);
+
+$app->router->get('/user-profile', [UserController::class, 'userProfile']);
 
 $app->run();

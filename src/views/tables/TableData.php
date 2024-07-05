@@ -15,10 +15,10 @@ class TableData
         $this->rowStyles = $rowStyles;
     }
 
-    public function handleAction($key)
+    public function handleAction($key, $row)
     {
         if (is_callable($key)) {
-            return call_user_func($key, $this->data[0]);
+            return call_user_func($key, $row["id"]);
         } else {
             return $key;
         }
@@ -47,7 +47,7 @@ class TableData
             if (count($this->actions) > 0) {
                 foreach ($this->actions as $key) {
                     $tableData .= '<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium">';
-                    $tableData .= $this->handleAction($key);
+                    $tableData .= $this->handleAction($key, $row);
                     $tableData .= '</td>';
                 }
             }
