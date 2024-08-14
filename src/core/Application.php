@@ -4,6 +4,7 @@ namespace app\core;
 
 use app\controllers\Controller;
 use app\models\DbModel;
+use app\models\UserAccountsModel;
 
 class Application
 {
@@ -38,6 +39,7 @@ class Application
 
         // get user model instance
         $userInstance = new $this->userClass();
+        $userAcc = new UserAccountsModel();
 
         $primaryValue = $this->session->get('user'); // get primary key from session | check if exists
 
@@ -79,6 +81,9 @@ class Application
     public function logout()
     {
         $this->session->remove("user");
+        $this->session->remove("user_role");
+        $this->session->remove("user_chama");
+        self::$app->user = null;
     }
 
     public function isGuest()

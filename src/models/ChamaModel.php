@@ -6,6 +6,7 @@ use app\core\Application;
 
 class ChamaModel extends DbModel
 {
+    public ?string $id = null;
     public string $name = '';
     public string $description = '';
     public string $contribution_period = '';
@@ -22,7 +23,7 @@ class ChamaModel extends DbModel
 
     public function primaryKey(): string
     {
-        return 'id';
+        return 'id = null';
     }
 
     public function attributes(): array
@@ -55,7 +56,9 @@ class ChamaModel extends DbModel
     public function rules(): array
     {
         return [
-            'name' => [self::RULE_REQUIRED],
+            'name' => [self::RULE_REQUIRED, [
+                self::RULE_UNIQUE, 'class' => self::class
+            ]],
             'description' => [self::RULE_REQUIRED],
             'contribution_period' => [self::RULE_REQUIRED],
             'contribution_amount' => [self::RULE_REQUIRED, self::RULE_NUMBER],
@@ -75,13 +78,16 @@ class ChamaModel extends DbModel
 
         // check if user has pending chama created
         $chama = ChamaModel::findOne(['chairperson_id' => Application::$app->user->{"id"}]);
+        // $userAcc = new UserAccountsModel();
+        // $userAcc->user_id = Application::$app->user->{"id"};
+        // $userAcc->chama_id = $this->id;
+        // $userAcc->role_id = 2;
 
         if ($chama && $chama->{"status"} == "pending") {
             Application::$app->session->setFlash("error", "Pending request, await approval!");
             Application::$app->response->redirect('/create-chama');
             exit;
         }
-
         return parent::save();
     }
 }

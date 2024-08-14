@@ -5,7 +5,9 @@ namespace app\controllers;
 use app\core\Application;
 use app\core\Request;
 use app\models\ChamaModel;
+use app\models\ChamaWalletModel;
 use app\models\JoinModel;
+use app\models\UserAccountsModel;
 use app\models\UserModel;
 use PDO;
 
@@ -37,7 +39,7 @@ class ChamaController extends Controller
 
             if ($chama->validate() && $chama->create()) {
                 Application::$app->session->setFlash("success", "Chama created! Await approval.");
-                Application::$app->response->redirect('/');
+                Application::$app->response->redirect('/login');
                 exit;
             } else {
                 return $this->render("createChama", [
@@ -92,12 +94,10 @@ class ChamaController extends Controller
         $chamasStmt->execute();
         $chamas = $chamasStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (count($chamas) > 0) {
-            return $this->render("chamas", [
-                "model" => $chamaModel,
-                "chamas" => $chamas
-            ], "dashboard");
-        }
+        return $this->render("chamas", [
+            "model" => $chamaModel,
+            "chamas" => $chamas
+        ], "dashboard");
     }
 
     public function chamaProfile()
@@ -114,29 +114,42 @@ class ChamaController extends Controller
 
     public function approveChama()
     {
-        $chamaModel = new ChamaModel();
-        $chamaId =  $_GET['id'];
-        $chama = $chamaModel->findOne(["id" => $chamaId]);
+        $chamaModel = new ChamaModel(); // create an instance of a chama
+
+        $chamaId =  $_GET['id']; // get id param from url
+
+        $chama = $chamaModel->findOne(["id" => $chamaId]); //find chama with chamaId
 
         // update the chama to approved or declined
         $updateChama = $chamaModel->updateOne(["id" => $chamaId], ["status" => "active"]);
 
         // update users table to add chama_id and role
         $user = new UserModel();
+        $userAcc = new UserAccountsModel(); // instance of user accounts model
+
+        // check if user exists in chama with same role
+        // user cannot have same role twice
+        $sameRole = $userAcc->findOne(["user_id" => $chama->{"chairperson_id"}, "role_id" => $role_id = 2, "chama_id" => $chama->{"id"}]);
+
+        // create new user account
+        $userAcc->user_id = $chama->{"chairperson_id"};
+        $userAcc->chama_id = $chama->{"id"};
+        $userAcc->role_id = 2;
+        $newAcc = $userAcc->save();
+
         $userId = $chama->{"chairperson_id"};
-        $updateUser = $user->updateOne(["id" => $userId], ["role_id" => 2, "chama_id" => $chamaId]);
+        $updateUser = $user->updateOne(["id" => $userId], ["status" => "active"]);
 
-
-        if ($updateChama && $updateUser) {
+        if ($updateChama && $newAcc && $updateUser) {
             Application::$app->session->setFlash("success", "Approval succesfull!");
             Application::$app->response->redirect("/chama-profile?id=$chamaId");
             exit;
         }
 
-        return $this->render("chamaProfile", [
-            "model" => $chamaModel,
-            "chama" => $chama
-        ], "dashboard");
+        // return $this->render("chamaProfile", [
+        //     "model" => $chamaModel,
+        //     "chama" => $chama
+        // ], "dashboard");
     }
 
     public function rejectChama()
@@ -154,62 +167,113 @@ class ChamaController extends Controller
             exit;
         }
 
-        return $this->render("chamaProfile", [
-            "model" => $chamaModel,
-            "chama" => $chama
-        ], "dashboard");
+        // return $this->render("chamaProfile", [
+        //     "model" => $chamaModel,
+        //     "chama" => $chama
+        // ], "dashboard");
     }
 
     // function to display join requests
     public function joinRequests()
     {
-        $joinModel = new ChamaModel();
-        // $chamas = $joinModel->findAll();
+        $joinModel = new JoinModel();
+        $chama_id = Application::$app->session->get("user_chama");
+
+        // create a prepared inner join statement to fetch all join requests
+        // and join on users and chama table
         $joinStmt = $joinModel->prepare(
             '
-            SELECT j.*, c.name as chama_id, u.userName as user_id 
+            SELECT j.id, c.name as chama_id, u.userName, j.join_status, j.created_at, j.updated_at
             FROM join_request j
             INNER JOIN users u ON j.user_id = u.id
             INNER JOIN chamas c ON j.chama_id = c.id
+            WHERE j.chama_id = :chama_id
         '
         );
+        $joinStmt->bindValue(":chama_id", $chama_id);
         $joinStmt->execute();
+
+        // fetch data then return as an array
         $requests = $joinStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if (count($requests) > 0) {
-            return $this->render("joinRequests", [
-                "model" => $joinModel,
-                "requests" => $requests
-            ], "dashboard");
-        }
+        return $this->render("joinRequests", [
+            "model" => $joinModel,
+            "requests" => $requests
+        ], "dashboard");
     }
 
 
     public function approveChamaJoin()
     {
         $joinModel = new JoinModel();
-        $joinId = $_GET["id"];
-        $updateJoin = $joinModel->updateOne(["id" => $joinId], ["join_status" => "active"]);
+        $userModel = new UserModel();
+        $userAcc = new UserAccountsModel();
+
+        $requests = $this->joinRequests();
+
+        // get joinId and userId from request
+        $joinId = $_GET['id'];
+
+        // get user join request from join requests table
+        $join = $joinModel->findOne(["id" => $joinId]);
+
+        // check if user has same membership in chama
+        $existUserAcc = $userAcc->findOne(["user_id" => $join->{"user_id"}, "chama_id" => $join->{"chama_id"}, "role_id" => 5]);
+
+        if ($existUserAcc) {
+            Application::$app->response->setStatusCode(400);
+            // Application::$app->response->redirect("/join-requests");
+            Application::$app->session->setFlash("error", "User account already exists");
+
+
+            return $this->render("joinRequests", [
+                "model" => $joinModel,
+                "requests" => $requests
+            ], "dashboard");
+        }
+
+        $updateJoin = $joinModel->updateOne(["id" => $joinId], ["join_status" => "accepted"]); // update join request 
+
+        $updateUser =  $userModel->updateOne(["id" => $join->{"user_id"}], ["status" => "active"]);  // update user status
+
+        // create user account
+        $userAcc->user_id = $join->{"user_id"};
+        $userAcc->chama_id = $join->{"chama_id"};
+        $userAcc->role_id = 5;
+        $newAcc = $userAcc->save();
+
+        if ($updateJoin && $updateUser && $newAcc) {
+            Application::$app->session->setFlash("success", "Join request approved successfully!");
+            Application::$app->response->redirect("/join-requests");
+            exit;
+        }
     }
 
     public function rejectChamaJoin()
     {
-        $chamaModel = new ChamaModel();
-        $chamaId =  $_GET['id'];
-        $chama = $chamaModel->findOne(["id" => $chamaId]);
+        $joinModel = new JoinModel();
+        $joinId =  $_GET['id'];
 
-        // update the chama to approved or declined
-        $updateChama = $chamaModel->updateOne(["id" => $chamaId], ["status" => "inactive"]);
+        // update the request to approved or declined
+        $updateJoinReq = $joinModel->updateOne(["id" => $joinId], ["join_status" => "rejected"]);
 
-        if ($updateChama) {
+        if ($updateJoinReq) {
             Application::$app->session->setFlash("success", "Reject succesfull!");
-            Application::$app->response->redirect("/chama-profile?id=$chamaId");
+            Application::$app->response->redirect("/chama-profile?id=$joinId");
             exit;
         }
+    }
 
-        return $this->render("chamaProfile", [
-            "model" => $chamaModel,
-            "chama" => $chama
+    public function chamaWallet()
+    {
+        $chamaId = Application::$app->session->get("user_chama");
+
+        $chamaWalletModel = new ChamaWalletModel();
+
+        $chamaRecords = $chamaWalletModel->findWhere(["chama_id" => $chamaId]);
+
+        return $this->render("chamaWallet", [
+            "chamaRecords" => $chamaRecords
         ], "dashboard");
     }
 }

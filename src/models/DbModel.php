@@ -33,17 +33,19 @@ abstract class DbModel extends Model
             $stmt->bindValue(":$attribute", $this->{$attribute});
         }
 
-        $stmt->execute();
+        $result = $stmt->execute();
+        var_dump($result);
 
         return true;
     }
 
-    public function findOne($where) // where is an associated array
+    public function findOne($where) // where is an associative array
     {
         $tableName = $this->tableName();
-
         $attributes = array_keys($where);
-        $sql = implode("AND ", array_map(fn ($attr) => "$attr = :$attr", $attributes));
+
+        // Ensure there's space around "AND"
+        $sql = implode(" AND ", array_map(fn ($attr) => "$attr = :$attr", $attributes));
         $stmt = self::prepare("SELECT * FROM $tableName WHERE $sql");
 
         foreach ($where as $key => $item) {
@@ -53,6 +55,24 @@ abstract class DbModel extends Model
         $stmt->execute();
 
         return $stmt->fetchObject(static::class);
+    }
+
+    public function findWhere($where) // where is an associative array
+    {
+        $tableName = $this->tableName();
+        $attributes = array_keys($where);
+
+        // Ensure there's space around "AND"
+        $sql = implode(" AND ", array_map(fn ($attr) => "$attr = :$attr", $attributes));
+        $stmt = self::prepare("SELECT * FROM $tableName WHERE $sql");
+
+        foreach ($where as $key => $item) {
+            $stmt->bindValue(":$key", $item);
+        }
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function findAll()
@@ -68,10 +88,10 @@ abstract class DbModel extends Model
         $tableName = $this->tableName();
 
         $valueAttributes = array_keys($values);
-        $sqlValues = implode(", ", array_map(fn ($attr) => "$attr = :$attr", $valueAttributes));
+        $sqlValues = implode(" , ", array_map(fn ($attr) => "$attr = :$attr", $valueAttributes));
 
         $attributes = array_keys($where);
-        $sql = implode(", ", array_map(fn ($attr) => "$attr = :$attr", $attributes));
+        $sql = implode(" AND ", array_map(fn ($attr) => "$attr = :$attr", $attributes));
 
         $stmt = self::prepare("UPDATE $tableName SET $sqlValues WHERE $sql");
 

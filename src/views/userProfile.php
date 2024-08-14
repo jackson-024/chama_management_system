@@ -1,33 +1,45 @@
- <div class="mx-4">
-     <div class="header pb-4">
+ <div class="container">
+     <div class="header">
          <div class="left">
              <h1>User Profile</h1>
          </div>
          <div>
-             <button onclick="history.back()" class="rounded-md px-3.5 py-2.5 text-sm font-semibold text-indigo-600 border border-indigo-600 shadow-sm hover:bg-indigo-500 hover:text-white">
-                 Back
-             </button>
+             <button onclick="history.back()" class="btn-back">Back</button>
          </div>
      </div>
 
-     <div class="border-2 px-10 py-6 gap-3">
-         <div class="flex justify-between">
+     <div class="chama-details">
+         <div class="flex">
              <div class="">
-                 <h3 class="text-lg font-bold">User Details</h3>
+                 <h3 class="title">User Details</h3>
              </div>
 
              <div>
-                 <?php if ($request->{"join_status"} == "pending") : ?>
-                     <div class="flex flex-row gap-4">
-                         <button onclick='approveJoin(<?php echo json_encode($request->{"id"}); ?>)' class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500">Approve</button>
-                         <button onclick='rejectJoin(<?php echo json_encode($request->{"id"}); ?>)' class="rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500">Reject</button>
-                     </div>
 
+                 <?php
+
+                    use app\core\Application;
+
+                    if (Application::$app->session->get("user_role") == 3) : ?>
+
+                     <a href="<?php echo "/allocate?id=$user->id" ?>" class="btn-approve">Allocate</a>
+                 <?php endif ?>
+
+                 <?php if ($request->{"join_status"} == "pending") : ?>
+                     <button onclick='approveJoin(<?php echo json_encode($request->{"id"}); ?>)' class="btn-approve">Approve</button>
+                     <button onclick='rejectJoin(<?php echo json_encode($request->{"id"}); ?>)' class="btn-reject">Reject</button>
+                 <?php endif ?>
+
+                 <?php if ($user->{"status"} == "active") : ?>
+                     <button onclick='deactivateUser(<?php echo json_encode($user->{"id"}); ?>)' class="btn-reject">Deactivate</button>
+                 <?php else : ?>
+                     <button onclick='activateUser(<?php echo json_encode($user->{"id"}); ?>)' class="btn-approve">Activate</button>
                  <?php endif ?>
 
              </div>
          </div>
-         <div class="grid md:grid-cols-2 lg:grid-cols-3 mt-4">
+
+         <div class="grid">
              <?php foreach ($user as $key => $value) : ?>
                  <?php if ($key == "errors") : ?>
                      <?php continue; ?>
@@ -41,9 +53,9 @@
                  <?php if ($key == "confirmPassword") : ?>
                      <?php continue; ?>
                  <?php endif ?>
-                 <p class="font-medium capitalize">
+                 <p class="detail">
                      <?php echo $key; ?>:
-                     <span class="text-indigo-600">
+                     <span class="detail-value">
                          <?php echo $value; ?>
                      </span>
                  </p>
@@ -51,3 +63,28 @@
          </div>
      </div>
  </div>
+
+
+ <script>
+     function deactivateUser(data) {
+         const url = `user-deactivate?id=${data}`
+         fetch(url).then((res) => {
+             if (res.ok) {
+                 showModal("success", "User deactivated successfully!")
+             } else {
+                 showModal("error", "Failed to deactivate user")
+             }
+         })
+     }
+
+     function activateUser(data) {
+         const url = `user-activate?id=${data}`
+         fetch(url).then((res) => {
+             if (res.ok) {
+                 showModal("success", "User activated successfully!")
+             } else {
+                 showModal("error", "Failed to activate user")
+             }
+         })
+     }
+ </script>

@@ -4,7 +4,6 @@ namespace app\core;
 
 class Database
 {
-
     public \PDO $pdo;
 
     // initialize the database
@@ -23,7 +22,7 @@ class Database
         return Application::$app->db->pdo->prepare($sql);
     }
 
-    // function used to apply middlewares
+    // function used to apply migrations
     public function applyMigrations()
     {
         $this->createMigrationsTable(); // create migrations table if none exits

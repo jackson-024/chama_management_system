@@ -33,13 +33,12 @@ class Field
 
         return sprintf(
             '
-            <div class="my-4">
-                <label for="%s" class="block text-sm font-medium leading-6 text-gray-900">%s</label>
-                <div class="relative mt-2 rounded-md shadow-sm ">
-                    <input type="%s" name="%s" id="%s" value="%s" class="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-500 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 text-sm leading-6 %s">
+           <div class="form-group">
+                <label for="%s" class="form-label">%s</label>
+                <div class="input-wrapper">
+                    <input type="%s" name="%s" id="%s" value="%s" class="form-input %s">
                 </div>
-
-                <div class="text-red-500">
+                <div class="error-message">
                     %s
                 </div>
             </div>
@@ -65,15 +64,14 @@ class Field
 
         return sprintf(
             '
-            <div class="my-4">
-                <label for="%s" class="block text-sm font-medium leading-6 text-gray-900">%s</label>
-                <div class="relative mt-2 rounded-md shadow-sm">
-                    <select name="%s" id="%s" class="block w-full rounded-md border-0 py-1.5 pl-3 text-gray-900 ring-1 ring-inset ring-gray-500 focus:ring-2 focus:ring-inset focus:ring-indigo-600 text-sm leading-6 %s">
+           <div class="form-group">
+                <label for="%s" class="form-label">%s</label>
+                <div class="input-wrapper">
+                    <select name="%s" id="%s" class="form-select %s">
                         %s
                     </select>
                 </div>
-
-                <div class="text-red-500">
+                <div class="error-message">
                     %s
                 </div>
             </div>
@@ -103,6 +101,18 @@ class Field
     public function numberField()
     {
         $this->type = self::TYPE_NUMBER;
+        return $this;
+    }
+
+    public function dateField()
+    {
+        $this->type = "date";
+        return $this;
+    }
+
+    public function timeField()
+    {
+        $this->type = "time";
         return $this;
     }
 

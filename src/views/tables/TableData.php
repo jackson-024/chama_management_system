@@ -18,7 +18,7 @@ class TableData
     public function handleAction($key, $row)
     {
         if (is_callable($key)) {
-            return call_user_func($key, $row["id"]);
+            return call_user_func($key, $row);
         } else {
             return $key;
         }
@@ -26,10 +26,21 @@ class TableData
 
     public function __toString()
     {
-        $tableData = '<tbody class="divide-y divide-gray-200 bg-white">';
+        // check if data is empty
+        if (empty($this->data)) {
+            return '
+                <tbody class="table-body">
+                    <tr class="table-row">
+                        <td class="table-cell no-data" colspan="100%">No data</td>
+                    </tr>
+                </tbody>
+            ';
+        }
+
+        $tableData = '<tbody class="table-body">';
 
         foreach ($this->data as $row) {
-            $tableData .= '<tr>';
+            $tableData .= '<tr class="table-row">';
 
             foreach ($row as $key => $value) {
                 $rowStyle = '';
@@ -38,7 +49,7 @@ class TableData
                 }
 
                 $tableData .= sprintf('
-                    <td class="whitespace-nowrap py-2 px-3 text-sm text-gray-900 %s">
+                    <td class="table-cell %s">
                         %s
                     </td>
                 ', $rowStyle, $value);
@@ -46,7 +57,7 @@ class TableData
 
             if (count($this->actions) > 0) {
                 foreach ($this->actions as $key) {
-                    $tableData .= '<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium">';
+                    $tableData .= '<td class="table-cell">';
                     $tableData .= $this->handleAction($key, $row);
                     $tableData .= '</td>';
                 }

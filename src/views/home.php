@@ -1,6 +1,6 @@
          <div class="header">
              <div class="left">
-                 <h1>Dashboard</h1>
+                 <h1>Admin Dashboard</h1>
              </div>
          </div>
 

@@ -49,6 +49,7 @@ abstract class Model
                     $this->addError($attribute, self::RULE_REQUIRED);
                 }
 
+                // filter_var is a php function
                 if ($ruleName === self::RULE_EMAIL && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     $this->addError($attribute, self::RULE_EMAIL);
                 }

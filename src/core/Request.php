@@ -50,11 +50,13 @@ class Request
         // Check if the request body is JSON
         $contentType = $this->getHeader('Content-Type');
 
+        // searches for application/json in conent type
         if (strpos($contentType, 'application/json') !== false) {
             // Decode the JSON data
             $body = json_decode($rawBody, true);
         } else {
             // Handle URL-encoded form data
+            // FILTER_SANITIZE_SPECIAL_CHARS filters out
             if ($this->getMethod() === "get") {
                 foreach ($_GET as $key => $value) {
                     $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);

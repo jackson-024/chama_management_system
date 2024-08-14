@@ -3,30 +3,98 @@
     "id": 1,
     "name": "Dashboard",
     "link": "/",
-    "icon": "bx bxs-dashboard"
+    "icon": "bx bxs-dashboard",
+    "role": [0]
   },
   {
     "id": 2,
-    "name": "Users",
+    "name": "Members",
     "link": "users",
-    "icon": "bx bx-group"
+    "icon": "bx bx-group",
+    "role": [2, 3, 4]
   },
   {
     "id": 3,
     "name": "Chamas",
     "link": "chamas",
-    "icon": "bx bx-grid"
+    "icon": "bx bx-grid",
+    "role": [1]
   },
   {
     "id": 5,
     "name": "Join Request",
     "link": "join-requests",
-    "icon": "bx bx-user-plus"
+    "icon": "bx bx-user-plus",
+    "role": [2, 4]
   },
   {
-    "id": 4,
-    "name": "Settings",
-    "link": "settings",
-    "icon": "bx bx-cog"
+    "id": 6,
+    "name": "Contribute",
+    "link": "contribute",
+    "icon": "bx bx-money",
+    "role": [2, 3, 4, 5]
+  },
+  {
+    "id": 7,
+    "name": "Contributions",
+    "link": "contributions",
+    "icon": "bx bxs-wallet-alt",
+    "role": [2, 3]
+  },
+  {
+    "id": 8,
+    "name": "Member wallet",
+    "link": "member-contributions",
+    "icon": "bx bx-wallet-alt",
+    "role": [2, 3, 4, 5]
+  },
+  {
+    "id": 8,
+    "name": "Chama wallet",
+    "link": "chama-wallet",
+    "icon": "bx bx-briefcase",
+    "role": [2, 3, 4, 5]
+  },
+  {
+    "id": 9,
+    "name": "Loan Products",
+    "link": "loan-products",
+    "icon": "bx bxs-component",
+    "role": [2, 3]
+  },
+  {
+    "id": 9,
+    "name": "Loans",
+    "link": "loans",
+    "icon": "bx bx-bar-chart-square",
+    "role": [2, 3]
+  },
+  {
+    "id": 9,
+    "name": "My Loans",
+    "link": "my-loans",
+    "icon": "bx bx-bar-chart-square",
+    "role": [2, 3, 4, 5]
+  },
+  {
+    "id": 10,
+    "name": "Meetings",
+    "link": "meetings",
+    "icon": "bx bx-objects-horizontal-center",
+    "role": [2, 3, 4, 5]
+  },
+  {
+    "id": 11,
+    "name": "Chama Fines",
+    "link": "fines",
+    "icon": "bx bx-objects-horizontal-center",
+    "role": [2, 3, 4]
+  },
+  {
+    "id": 11,
+    "name": "Member Fines",
+    "link": "member-fines",
+    "icon": "bx bx-objects-horizontal-center",
+    "role": [2, 3, 4]
   }
 ]

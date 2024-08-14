@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use app\core\Application;
+
 class UserModel extends DbModel
 {
     public string $firstName = '';
@@ -11,12 +13,10 @@ class UserModel extends DbModel
     public string $email = '';
     public string $password  = '';
     public string $confirmPassword  = '';
-    public string $role_id  = '';
     public string $status  = 'pending';
     public string $location  = '';
     public string $gender  = '';
     public string $id_number  = '';
-    public ?string $chama_id = null; // Allow null
 
     public function tableName(): string
     {
@@ -37,7 +37,6 @@ class UserModel extends DbModel
             "phoneNumber",
             "email",
             "password",
-            "role_id",
             "status",
             "id_number",
             "location",
@@ -86,9 +85,12 @@ class UserModel extends DbModel
 
     public function register()
     {
+        $user = new UserModel();
         $this->password = password_hash($this->password, PASSWORD_DEFAULT);
-        // $this->role_id = 1;
-        return parent::save();
+        parent::save();
+
+        $userFound = $user->findOne(['email' => $this->email]);
+        return Application::$app->login($userFound);
     }
 
     public function getDisplayName(): string

@@ -48,12 +48,16 @@ class LoginModel extends DbModel
 
     public function login()
     {
-        // $user = UserModel::findOne(['email' => $this->email]);
         $user = new UserModel();
         $userFound = $user->findOne(['email' => $this->email]);
 
+        // if user not found throw error
         if (!$userFound) {
-            $this->addErrorMessage('email', 'User does not exist with this email');
+            // I can add an error on form element
+            // $this->addErrorMessage('email', 'User does not exist with this email');
+
+            // Add error message on session
+            Application::$app->session->setFlash("error", "User does not exist with this email");
             return false;
         }
 
@@ -62,15 +66,20 @@ class LoginModel extends DbModel
             return false;
         }
 
-        if ($userFound->role_id === 1) {
-            Application::$app->session->setFlash("success", "Login successful");
-            Application::$app->response->redirect('/');
-            return Application::$app->login($userFound);
-        } elseif ($userFound->chama_id === null) {
-            Application::$app->login($userFound);
-            Application::$app->session->setFlash("success", "Login successful");
-            Application::$app->response->redirect('/landing');
-            exit;
+        // if ($userFound->role_id === 1) {
+        //     Application::$app->session->setFlash("success", "Login successful");
+        //     Application::$app->response->redirect('/');
+        //     return Application::$app->login($userFound);
+        // } elseif ($userFound->chama_id === null) {
+        //     Application::$app->login($userFound);
+        //     Application::$app->session->setFlash("success", "Login successful");
+        //     Application::$app->response->redirect('/landing');
+        //     exit;
+        // }
+
+        if ($userFound->status == "pending") {
+            Application::$app->session->setFlash("error", "Pending approval");
+            return false;
         }
 
         return Application::$app->login($userFound);
