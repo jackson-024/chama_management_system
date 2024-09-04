@@ -118,29 +118,29 @@ class ContributeController extends Controller
                 $userRecords = $userWalletModel->findWhere(["user_id" => $userId]);
 
                 if (!$userRecords) {
-                    $newUWUpdate = $this->creditUserWallet($chamaId, $userId, $debit = 0, $amount["credit"], $amount["credit"]);
-                } else {
-
-                    $lastUserWalletRecord = end($userRecords);
-                    $prevUWBalance = $lastUserWalletRecord["balance"];
-                    $newUWBalance = $prevUWBalance + $amount["credit"];
-
-                    $newUWUpdate = $this->creditUserWallet($userId, $chamaId, $debit = 0, $amount["credit"], $newUWBalance);
+                    $newUWUpdate = $this->creditUserWallet($userId, $chamaId, $debit = 0, $amount["credit"], $amount["credit"]);
                 }
+
+                $lastUserWalletRecord = end($userRecords);
+                $prevUWBalance = $lastUserWalletRecord["balance"];
+                $newUWBalance = $prevUWBalance + $amount["credit"];
+
+                $newUWUpdate = $this->creditUserWallet($userId, $chamaId, $debit = 0, $amount["credit"], $newUWBalance);
 
                 // update chama_wallet
                 // check previous update
                 $chamaRecords = $chamaWallet->findWhere(["chama_id" => $chamaId]);
                 if (!$chamaRecords) {
                     $newChamaWRecord = $this->creditChamaWallet($chamaId, $debit = 0, $amount["credit"], $amount["credit"]);
-                } else {
-                    $lastChamaRecord = end($chamaRecords);
-
-                    $prevChamaBal = $lastChamaRecord["balance"];
-                    $newChamaBal = $prevChamaBal + $amount["credit"];
-
-                    $newChamaWRecord = $this->creditChamaWallet($chamaId, $debit = 0, $amount["credit"], $newChamaBal);
                 }
+
+                $lastChamaRecord = end($chamaRecords);
+
+                $prevChamaBal = $lastChamaRecord["balance"];
+                $newChamaBal = $prevChamaBal + $amount["credit"];
+
+                $newChamaWRecord = $this->creditChamaWallet($chamaId, $debit = 0, $amount["credit"], $newChamaBal);
+
 
                 if ($newUWUpdate && $newChamaWRecord) {
                     Application::$app->session->setFlash("success", "Contribution successfull!");

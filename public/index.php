@@ -34,7 +34,7 @@ $app = new Application(dirname(__DIR__), $config);
 
 $app->router->get('/hello', "hello");
 
-$app->router->get('/', [SiteController::class, 'home']);
+$app->router->get('/', [SiteController::class, 'landingPage']);
 $app->router->get('/users', [UserController::class, 'users']);
 
 $app->router->get('/login', [AuthController::class, 'handleLogin']);

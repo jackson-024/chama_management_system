@@ -15,6 +15,11 @@ use app\models\UserWalletModel;
 
 class SiteController extends Controller
 {
+    public function landingPage()
+    {
+        return $this->render('landingPage', [], "main");
+    }
+
     public function home()
     {
 
